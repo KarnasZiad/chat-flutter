@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 Chatbot Demo - Flutter Chat App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .header {
+      background: #2196F3;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .chat-container {
+      height: 400px;
+      overflow-y: auto;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    .message {
+      margin: 10px 0;
+      padding: 12px 16px;
+      border-radius: 18px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+    .user-message {
+      background: #2196F3;
+      color: white;
+      margin-left: auto;
+      text-align: right;
+    }
+    .bot-message {
+      background: #e9ecef;
+      color: #333;
+      margin-right: auto;
+    }
+    .input-container {
+      display: flex;
+      padding: 20px;
+      background: white;
+      border-top: 1px solid #dee2e6;
+    }
+    .message-input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e9ecef;
+      border-radius: 25px;
+      outline: none;
+      font-size: 14px;
+    }
+    .message-input:focus {
+      border-color: #2196F3;
+    }
+    .send-button {
+      margin-left: 10px;
+      padding: 12px 20px;
+      background: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .send-button:hover {
+      background: #1976D2;
+    }
+    .send-button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .features {
+      padding: 20px;
+      background: white;
+    }
+    .feature-item {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f9fa;
+      border-left: 4px solid #2196F3;
+      border-radius: 5px;
+    }
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 20px;
+      background: #f8f9fa;
+    }
+    .suggestion {
+      padding: 8px 12px;
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.2s;
+    }
+    .suggestion:hover {
+      background: #2196F3;
+      color: white;
+    }
+    .typing {
+      font-style: italic;
+      color: #666;
+      padding: 10px 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🤖 Assistant IA - Démonstration</h1>
+      <p>Testez le chatbot intelligent de l'application Flutter</p>
+    </div>
+
+    <div class="suggestions">
+      <div class="suggestion" onclick="sendSuggestion('Salut !')">Salut !</div>
+      <div class="suggestion" onclick="sendSuggestion('Comment ça va ?')">Comment ça va ?</div>
+      <div class="suggestion" onclick="sendSuggestion('Je travaille sur Flutter')">Je travaille sur Flutter</div>
+      <div class="suggestion" onclick="sendSuggestion('J\'ai besoin d\'aide')">J'ai besoin d'aide</div>
+      <div class="suggestion" onclick="sendSuggestion('Merci !')">Merci !</div>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+      <div class="message bot-message">
+        🤖 Salut ! Je suis ton assistant IA. Comment puis-je t'aider ?
+      </div>
+    </div>
+
+    <div class="input-container">
+      <input type="text" class="message-input" id="messageInput" placeholder="Tapez votre message..." onkeypress="handleKeyPress(event)">
+      <button class="send-button" onclick="sendMessage()">Envoyer</button>
+    </div>
+
+    <div class="features">
+      <h3>🧠 Fonctionnalités du Chatbot</h3>
+      <div class="feature-item">
+        <strong>💬 Conversations Naturelles :</strong> Le bot comprend le contexte et répond de manière appropriée
+      </div>
+      <div class="feature-item">
+        <strong>🎯 15+ Intentions :</strong> Salutations, technologie, aide, projets, loisirs, etc.
+      </div>
+      <div class="feature-item">
+        <strong>🧠 Mémoire Contextuelle :</strong> Se souvient de vos messages précédents
+      </div>
+      <div class="feature-item">
+        <strong>🎲 Réponses Variées :</strong> 80+ réponses différentes pour éviter la répétition
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simulation du chatbot intelligent
+    const chatbot = {
+      responses: {
+        'salut': [
+          'Salut ! Comment ça va aujourd\'hui ?',
+          'Hey ! Ravi de te parler !',
+          'Salut ! Qu\'est-ce qui t\'amène ?',
+          'Coucou ! Comment puis-je t\'aider ?'
+        ],
+        'bonjour': [
+          'Bonjour ! J\'espère que tu passes une excellente journée !',
+          'Bonjour ! Comment puis-je t\'aider aujourd\'hui ?',
+          'Salut ! Quoi de neuf ?'
+        ],
+        'comment': [
+          'Ça va super bien, merci ! Et toi ?',
+          'Très bien ! Je suis là pour discuter avec toi !',
+          'Parfait ! Toujours prêt à aider !'
+        ],
+        'flutter': [
+          'Flutter est fantastique ! Tu développes quelque chose d\'intéressant ?',
+          'J\'adore Flutter ! C\'est si puissant pour créer des apps !',
+          'Excellent choix ! Flutter rend le développement mobile si fluide !'
+        ],
+        'aide': [
+          'Bien sûr ! Je suis là pour t\'aider ! Dis-moi tout !',
+          'Avec plaisir ! Quel est le problème ?',
+          'Pas de souci ! Explique-moi ce dont tu as besoin !'
+        ],
+        'merci': [
+          'De rien ! C\'était un plaisir !',
+          'Avec plaisir ! N\'hésite pas si tu as besoin !',
+          'Content d\'avoir pu t\'aider ! 😊'
+        ],
+        'default': [
+          'Intéressant ! Peux-tu m\'en dire plus ?',
+          'Hmm, je vois ! Continue, ça m\'intéresse !',
+          'C\'est fascinant ! Raconte-moi la suite !',
+          'Je t\'écoute ! Développe un peu !'
+        ]
+      },
+      
+      history: [],
+      
+      generateResponse(message) {
+        this.history.push(message.toLowerCase());
+        
+        let intent = 'default';
+        const msg = message.toLowerCase();
+        
+        if (msg.includes('salut') || msg.includes('hello') || msg.includes('hey')) intent = 'salut';
+        else if (msg.includes('bonjour') || msg.includes('bonsoir')) intent = 'bonjour';
+        else if (msg.includes('comment') || msg.includes('ça va')) intent = 'comment';
+        else if (msg.includes('flutter') || msg.includes('dart')) intent = 'flutter';
+        else if (msg.includes('aide') || msg.includes('help')) intent = 'aide';
+        else if (msg.includes('merci') || msg.includes('thanks')) intent = 'merci';
+        
+        const responses = this.responses[intent] || this.responses['default'];
+        return responses[Math.floor(Math.random() * responses.length)];
+      }
+    };
+
+    function addMessage(content, isUser = false) {
+      const chatContainer = document.getElementById('chatContainer');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+      messageDiv.textContent = (isUser ? '' : '🤖 ') + content;
+      chatContainer.appendChild(messageDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function showTyping() {
+      const chatContainer = document.getElementById('chatContainer');
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing';
+      typingDiv.id = 'typing';
+      typingDiv.textContent = '🤖 Assistant IA tape...';
+      chatContainer.appendChild(typingDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function hideTyping() {
+      const typing = document.getElementById('typing');
+      if (typing) typing.remove();
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+      
+      if (!message) return;
+      
+      // Ajouter le message de l'utilisateur
+      addMessage(message, true);
+      input.value = '';
+      
+      // Montrer que le bot tape
+      showTyping();
+      
+      // Simuler un délai de réponse
+      setTimeout(() => {
+        hideTyping();
+        const response = chatbot.generateResponse(message);
+        addMessage(response);
+      }, 1500);
+    }
+
+    function sendSuggestion(message) {
+      document.getElementById('messageInput').value = message;
+      sendMessage();
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    // Focus sur l'input au chargement
+    document.getElementById('messageInput').focus();
+  </script>
+</body>
+</html>
